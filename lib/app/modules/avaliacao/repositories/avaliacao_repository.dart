@@ -36,6 +36,28 @@ class AvaliacaoRepository {
     }
   }
 
+  // --- BUSCAR A ÚLTIMA AVALIAÇÃO FÍSICA DO ALUNO ---
+  static Future<Map<String, dynamic>?> getUltimaAvaliacao(String usuarioId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/avaliacoes?aluno_id=$usuarioId'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        if (data.isNotEmpty) {
+          // Retorna a última avaliação cadastrada (a primeira da lista se estiver em ORDER BY id DESC)
+          return data.first as Map<String, dynamic>;
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Erro ao buscar avaliação física: $e');
+      return null;
+    }
+  }
+
+
   // --- SALVAR/ATUALIZAR AVALIAÇÃO FÍSICA NO BANCO ---
   static Future<bool> salvarAvaliacao(Map<String, dynamic> payload) async {
     try {

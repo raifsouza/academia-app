@@ -124,14 +124,13 @@ class TreinoPdfService {
                     // TABELA DE EXERCÍCIOS
                     if (ficha.exercicios.isNotEmpty)
                       pw.Table.fromTextArray(
-                        headers: ['Exercício', 'Séries', 'Reps', 'Carga (kg)', 'Obs'],
+                        headers: ['Exercício', 'Séries', 'Reps', 'Carga (kg)'],
                         data: ficha.exercicios.map((ex) {
                           return [
                             ex.nome,
                             ex.series.toString(),
                             ex.repeticoes,
                             ex.cargaKg > 0 ? '${ex.cargaKg} kg' : '-',
-                            ex.observacoes,
                           ];
                         }).toList(),
                         headerStyle: pw.TextStyle(

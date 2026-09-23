@@ -75,32 +75,37 @@ class _EditorTreinoAlunoPageState extends State<EditorTreinoAlunoPage> {
   }
 
   Future<void> _salvarFichaTreino() async {
-    if (_tituloController.text.trim().isEmpty) return;
+  if (_tituloController.text.trim().isEmpty) return;
 
-    setState(() => _isLoading = true);
+  setState(() => _isLoading = true);
 
-    // Aqui você pode enviar a ficha junto com os exercícios para o backend
-    final sucesso = await TreinoRepository.criarTreino(
-      usuarioId: widget.aluno.id,
-      titulo: _tituloController.text,
-      descricao: _descricaoController.text,
-      diaSemana: _diaSelecionado,
-    );
+  final sucesso = await TreinoRepository.criarTreino(
+    usuarioId: widget.aluno.id,
+    titulo: _tituloController.text.trim(),
+    descricao: _descricaoController.text.trim(),
+    diaSemana: _diaSelecionado,
+    exercicios: _exerciciosTemporarios, // <--- Lista enviada para o repositório
+  );
 
-    if (sucesso) {
-      _tituloController.clear();
-      _descricaoController.clear();
+  if (sucesso) {
+    _tituloController.clear();
+    _descricaoController.clear();
+    setState(() {
       _exerciciosTemporarios.clear();
-      await _carregarTreinos();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Treino salvo com sucesso!'), backgroundColor: AppColors.orangePrimary),
-        );
-      }
+    });
+    await _carregarTreinos();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Treino salvo com sucesso!'),
+          backgroundColor: AppColors.orangePrimary,
+        ),
+      );
     }
-
-    if (mounted) setState(() => _isLoading = false);
   }
+
+  if (mounted) setState(() => _isLoading = false);
+}
 
   Future<void> _deletarTreino(String id) async {
     final sucesso = await TreinoRepository.deletarTreino(id);
