@@ -4,6 +4,7 @@ import '../../../core/auth/auth_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../avaliacao/views/avaliacao_tab_page.dart';
 import '../../financeiro/views/financeiro_tab_page.dart';
+import '../../produtos/view/produtos_page.dart';
 import '../../treino/views/treinos_tab_page.dart';
 import '../widgets/dashboard_home_tab.dart';
 
@@ -36,10 +37,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       DashboardHomeTab(onNavegarParaTreinos: () => _mudarAba(1)),
       const TreinosTabPage(),
       const AvaliacaoTabPage(),
-      FinanceiroTabPage(
-        isAdmin: true,
-        usuarioIdLogado: usuarioIdLogado,
-      ),
+      const ProdutosPage(),
+      FinanceiroTabPage(isAdmin: true, usuarioIdLogado: usuarioIdLogado),
       const OpcoesPage(),
     ];
 
@@ -47,6 +46,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       DashboardHomeTab(onNavegarParaTreinos: () => _mudarAba(1)),
       const TreinosTabPage(),
       const AvaliacaoTabPage(),
+      const ProdutosPage(),
       const OpcoesPage(),
     ];
 
@@ -54,10 +54,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       DashboardHomeTab(onNavegarParaTreinos: () => _mudarAba(1)),
       const TreinosTabPage(),
       const AvaliacaoTabPage(),
-      FinanceiroTabPage(
-        isAdmin: false,
-        usuarioIdLogado: usuarioIdLogado,
-      ),
+      FinanceiroTabPage(isAdmin: false, usuarioIdLogado: usuarioIdLogado),
       const OpcoesPage(),
     ];
 
@@ -76,6 +73,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         icon: Icon(Icons.assignment_outlined),
         activeIcon: Icon(Icons.assignment),
         label: 'Avaliações',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.storefront_outlined),
+        activeIcon: Icon(Icons.storefront),
+        label: 'Loja',
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.account_balance_wallet_outlined),
@@ -104,6 +106,11 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         icon: Icon(Icons.assignment_outlined),
         activeIcon: Icon(Icons.assignment),
         label: 'Avaliações',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.storefront_outlined),
+        activeIcon: Icon(Icons.storefront),
+        label: 'Loja',
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.settings_outlined),
@@ -153,10 +160,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: AppColors.border, width: 1)),
