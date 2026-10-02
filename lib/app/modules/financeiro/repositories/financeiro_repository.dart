@@ -3,10 +3,20 @@ import 'package:http/http.dart' as http;
 import '../../treino/models/aluno_model.dart';
 import '../models/financeiro_model.dart';
 
+class InfinitePayCheckoutResult {
+  final String checkoutUrl;
+  final String orderNsu;
+
+  InfinitePayCheckoutResult({
+    required this.checkoutUrl,
+    required this.orderNsu,
+  });
+}
+
 class FinanceiroRepository {
   static const String _baseUrl = 'http://localhost:3000/api';
 
-  // Busca a lista de alunos cadastrados para o Admin
+  /// Busca a lista de alunos cadastrados para o Admin
   static Future<List<Aluno>> getAlunos() async {
     try {
       final response = await http.get(Uri.parse('$_baseUrl/alunos'));
@@ -20,9 +30,11 @@ class FinanceiroRepository {
     }
   }
 
-  // Busca o histórico financeiro individual de um aluno pelo ID
+  /// Busca o histórico financeiro individual de um aluno pelo ID
   static Future<List<Fatura>> getHistoricoFaturasAluno(int usuarioId) async {
-    final response = await http.get(Uri.parse('$_baseUrl/pagamentos?usuario_id=$usuarioId'));
+    final response = await http.get(
+      Uri.parse('$_baseUrl/pagamentos?usuario_id=$usuarioId'),
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -32,7 +44,38 @@ class FinanceiroRepository {
     }
   }
 
-  // Dar baixa/Confirmar pagamento
+  /// Gera a cobrança Pix em tempo real através do backend (InfinitePay)
+  // Dentro do FinanceiroRepository:
+  static Future<InfinitePayCheckoutResult?> gerarLinkCheckoutInfinitePay({
+    required String faturaId,
+    required double valor,
+    required String descricao,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/infinitepay/pix'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'fatura_id': faturaId,
+          'valor': valor,
+          'descricao': descricao,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return InfinitePayCheckoutResult(
+          checkoutUrl: data['checkout_url'] ?? '',
+          orderNsu: data['order_nsu'] ?? faturaId,
+        );
+      }
+    } catch (e) {
+      print('Erro ao gerar link de checkout: $e');
+    }
+    return null;
+  }
+
+  /// Dar baixa / Confirmar pagamento de uma fatura
   static Future<bool> confirmarPagamentoFatura(String faturaId) async {
     final dataHoje = DateTime.now().toIso8601String().split('T')[0];
     final response = await http.post(
@@ -48,7 +91,7 @@ class FinanceiroRepository {
     return response.statusCode == 200;
   }
 
-  // Registrar pagamento manual
+  /// Registrar pagamento manual (Admin)
   static Future<bool> registrarPagamento({
     required int usuarioId,
     required double valor,

@@ -36,7 +36,7 @@ class _ProdutosPageState extends State<ProdutosPage> {
 
   void _abrirModalVenda(Produto produto) {
     int quantidade = 1;
-    String metodoSelecionado = 'PIX'; // Padrão selecionado
+    String metodoSelecionado = 'PIX';
 
     final Map<String, String> opcoesPagamento = {
       'PIX': 'Pix',
@@ -61,7 +61,6 @@ class _ProdutosPageState extends State<ProdutosPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Controle de Quantidade
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -91,7 +90,6 @@ class _ProdutosPageState extends State<ProdutosPage> {
                   style: TextStyle(color: AppColors.textMuted, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                // Seletor de Método de Pagamento
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -170,66 +168,97 @@ class _ProdutosPageState extends State<ProdutosPage> {
     final nomeController = TextEditingController();
     final precoController = TextEditingController();
     final estoqueController = TextEditingController();
+    String categoriaSelecionada = 'FREEZER';
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.backgroundCard,
-        title: const Text('Cadastrar Produto', style: TextStyle(color: AppColors.textPrimary)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nomeController,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(
-                labelText: 'Nome do Produto (ex: Água 500ml)',
-                labelStyle: TextStyle(color: AppColors.textMuted),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateModal) => AlertDialog(
+          backgroundColor: AppColors.backgroundCard,
+          title: const Text('Cadastrar Produto', style: TextStyle(color: AppColors.textPrimary)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nomeController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Nome do Produto (ex: Água 500ml)',
+                  labelStyle: TextStyle(color: AppColors.textMuted),
+                ),
               ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: precoController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Preço (R\$)',
+                  labelStyle: TextStyle(color: AppColors.textMuted),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: estoqueController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Quantidade em Estoque',
+                  labelStyle: TextStyle(color: AppColors.textMuted),
+                ),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: categoriaSelecionada,
+                dropdownColor: AppColors.backgroundCard,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Origem / Categoria',
+                  labelStyle: TextStyle(color: AppColors.textMuted),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'FREEZER',
+                    child: Text('Freezer (Bebidas)'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'SUPLEMENTO',
+                    child: Text('Suplementos / Outros'),
+                  ),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setStateModal(() => categoriaSelecionada = val);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CANCELAR', style: TextStyle(color: AppColors.textMuted)),
             ),
-            TextField(
-              controller: precoController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(
-                labelText: 'Preço (R\$)',
-                labelStyle: TextStyle(color: AppColors.textMuted),
-              ),
-            ),
-            TextField(
-              controller: estoqueController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(
-                labelText: 'Quantidade em Estoque',
-                labelStyle: TextStyle(color: AppColors.textMuted),
-              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.orangePrimary),
+              onPressed: () async {
+                final novo = Produto(
+                  nome: nomeController.text,
+                  preco: double.tryParse(precoController.text.replaceAll(',', '.')) ?? 0.0,
+                  estoque: int.tryParse(estoqueController.text) ?? 0,
+                  categoria: categoriaSelecionada,
+                );
+
+                final ok = await ProdutoRepository.criarProduto(novo);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  if (ok) _carregarProdutos();
+                }
+              },
+              child: const Text('SALVAR', style: TextStyle(color: Colors.black)),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCELAR', style: TextStyle(color: AppColors.textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.orangePrimary),
-            onPressed: () async {
-              final novo = Produto(
-                nome: nomeController.text,
-                preco: double.tryParse(precoController.text.replaceAll(',', '.')) ?? 0.0,
-                estoque: int.tryParse(estoqueController.text) ?? 0,
-              );
-
-              final ok = await ProdutoRepository.criarProduto(novo);
-              if (context.mounted) {
-                Navigator.pop(context);
-                if (ok) _carregarProdutos();
-              }
-            },
-            child: const Text('SALVAR', style: TextStyle(color: Colors.black)),
-          ),
-        ],
       ),
     );
   }
@@ -265,14 +294,40 @@ class _ProdutosPageState extends State<ProdutosPage> {
               itemCount: _produtos.length,
               itemBuilder: (context, index) {
                 final prod = _produtos[index];
+                final bool isFreezer = prod.categoria == 'FREEZER';
+
                 return Card(
                   color: AppColors.backgroundCard,
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    leading: const Icon(Icons.local_drink, color: AppColors.orangePrimary),
-                    title: Text(
-                      prod.nome,
-                      style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                    leading: Icon(
+                      isFreezer ? Icons.kitchen : Icons.fitness_center,
+                      color: AppColors.orangePrimary,
+                    ),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            prod.nome,
+                            style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isFreezer ? Colors.blue.withOpacity(0.2) : Colors.purple.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isFreezer ? 'FREEZER' : 'SUPLEMENTO',
+                            style: TextStyle(
+                              color: isFreezer ? Colors.lightBlueAccent : Colors.purpleAccent,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     subtitle: Text(
                       'Estoque: ${prod.estoque} un',

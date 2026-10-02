@@ -3,12 +3,14 @@ class Produto {
   final String nome;
   final double preco;
   final int estoque;
+  final String categoria; // 'FREEZER' ou 'SUPLEMENTO'
 
   Produto({
     this.id,
     required this.nome,
     required this.preco,
     required this.estoque,
+    this.categoria = 'FREEZER',
   });
 
   factory Produto.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class Produto {
       nome: json['nome'] ?? '',
       preco: double.tryParse(json['preco']?.toString() ?? '0') ?? 0.0,
       estoque: int.tryParse(json['estoque']?.toString() ?? '0') ?? 0,
+      categoria: (json['categoria']?.toString().toUpperCase()) ?? 'FREEZER',
     );
   }
 
@@ -26,6 +29,7 @@ class Produto {
       'nome': nome,
       'preco': preco,
       'estoque': estoque,
+      'categoria': categoria,
     };
   }
 }

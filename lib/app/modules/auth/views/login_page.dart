@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/auth/auth_service.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/services/notification_service.dart'; // Importe o NotificationService
 import '../../../core/widgets/custom_text_field.dart';
 import '../../home/views/main_navigation_page.dart';
 
@@ -16,16 +17,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _loginController = TextEditingController(); // E-mail ou Matrícula
+  final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
 
   final _authService = AuthService();
   bool _isLoading = false;
 
-  // Substitua pelo IP/Host da sua API
-  // Android Emulator: http://10.0.2.2:3000/api/login
   static const String _apiUrl = 'http://localhost:3000/api/login';
-  //static const String _apiUrl = 'http://10.0.2.2:3000/api/login';
+  static const String _tokenUrl = 'http://localhost:3000/api/usuarios/fcm-token';
 
   Future<void> _fazerLogin() async {
     if (!_formKey.currentState!.validate()) return;
@@ -48,16 +47,31 @@ class _LoginPageState extends State<LoginPage> {
         final usuario = responseData['usuario'];
         final int tipoUsuario = usuario['tipo_usuario'] ?? 3;
 
-        // Salva o mapa com os dados no AuthService
         _authService.usuarioLogado = usuario;
 
-        // Mapeamento de tipo_usuario do BD (1: Admin, 2: Professor/Personal, 3: Aluno)
         if (tipoUsuario == 1) {
           _authService.perfilAtual = TipoPerfil.admin;
         } else if (tipoUsuario == 2) {
           _authService.perfilAtual = TipoPerfil.personal;
         } else {
           _authService.perfilAtual = TipoPerfil.aluno;
+        }
+
+        // --- REGISTRO DO TOKEN PUSH (FCM) ---
+        try {
+          final fcmToken = await NotificationService.getDeviceToken();
+          if (fcmToken != null && usuario['id'] != null) {
+            await http.post(
+              Uri.parse(_tokenUrl),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'usuario_id': usuario['id'],
+                'fcm_token': fcmToken,
+              }),
+            );
+          }
+        } catch (e) {
+          print('Erro ao atualizar token FCM no login: $e');
         }
 
         if (mounted) {
@@ -76,15 +90,11 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } else {
-        // Erro retornado pela API (ex: status 400 ou 401)
-        final errorMessage =
-            responseData['error'] ?? 'Falha ao realizar login.';
+        final errorMessage = responseData['error'] ?? 'Falha ao realizar login.';
         _exibirErro(errorMessage);
       }
     } catch (e) {
-      _exibirErro(
-        'Não foi possível conectar ao servidor. Verifique a conexão.',
-      );
+      _exibirErro('Não foi possível conectar ao servidor. Verifique a conexão.');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -113,22 +123,14 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 16.0,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // --- LOGO / TITULO ---
-                  const Icon(
-                    Icons.fitness_center,
-                    size: 64,
-                    color: AppColors.orangePrimary,
-                  ),
+                  const Icon(Icons.fitness_center, size: 64, color: AppColors.orangePrimary),
                   const SizedBox(height: 12),
                   const Text(
                     'POWER SHAPE',
@@ -143,14 +145,10 @@ class _LoginPageState extends State<LoginPage> {
                   const Text(
                     'Performance & Resultados',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 36),
 
-                  // --- INPUTS ---
                   CustomTextField(
                     label: 'Matrícula ou E-mail',
                     hint: 'Digite seu acesso',
@@ -177,33 +175,24 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
-
-                  // --- ESQUECEU A SENHA ---
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {},
                       child: const Text(
                         'Esqueceu a senha?',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // --- BOTÃO DE ENTRAR ---
                   ElevatedButton(
                     onPressed: _isLoading ? null : _fazerLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.orangePrimary,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       elevation: 4,
                       shadowColor: AppColors.orangeGlow,
                     ),
@@ -211,18 +200,11 @@ class _LoginPageState extends State<LoginPage> {
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.black,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                           )
                         : const Text(
                             'ENTRAR',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1,
-                            ),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1),
                           ),
                   ),
                 ],

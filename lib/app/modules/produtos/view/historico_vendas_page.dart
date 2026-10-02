@@ -56,18 +56,44 @@ class _HistoricoVendasPageState extends State<HistoricoVendasPage> {
                         ? item['data_venda'].toString().replaceAll('T', ' ').substring(0, 16)
                         : '--';
                     final String pagamento = item['metodo_pagamento']?.toString().toUpperCase() ?? 'N/A';
+                    final String categoria = item['produto_categoria']?.toString().toUpperCase() ?? 'FREEZER';
+                    final bool isFreezer = categoria == 'FREEZER';
 
                     return Card(
                       color: AppColors.backgroundCard,
                       margin: const EdgeInsets.only(bottom: 12),
                       child: ListTile(
-                        leading: const Icon(Icons.receipt_long, color: AppColors.orangePrimary),
-                        title: Text(
-                          '${item['quantidade']}x ${item['produto_nome']}',
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        leading: Icon(
+                          isFreezer ? Icons.kitchen : Icons.fitness_center,
+                          color: AppColors.orangePrimary,
+                        ),
+                        title: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${item['quantidade']}x ${item['produto_nome']}',
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: isFreezer ? Colors.blue.withOpacity(0.2) : Colors.purple.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                isFreezer ? 'FREEZER' : 'SUPLEMENTO',
+                                style: TextStyle(
+                                  color: isFreezer ? Colors.lightBlueAccent : Colors.purpleAccent,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         subtitle: Text(
                           'Vendedor: ${item['vendedor_nome'] ?? 'Sistema'}\nPagamento: $pagamento\nData: $dataFormatada',
