@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:power_shape_app/app/modules/auth/views/cadastro_page.dart';
 
 import '../../../core/auth/auth_service.dart';
+import '../../../core/constants/api_constants.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/services/notification_service.dart'; // Importe o NotificationService
 import '../../../core/widgets/custom_text_field.dart';
@@ -23,8 +25,8 @@ class _LoginPageState extends State<LoginPage> {
   final _authService = AuthService();
   bool _isLoading = false;
 
-  static const String _apiUrl = 'http://localhost:3000/api/login';
-  static const String _tokenUrl = 'http://localhost:3000/api/usuarios/fcm-token';
+  static String get _apiUrl => ApiConstants.loginUrl;
+  static String get _tokenUrl => ApiConstants.fcmTokenUrl;
 
   Future<void> _fazerLogin() async {
     if (!_formKey.currentState!.validate()) return;
@@ -206,6 +208,33 @@ class _LoginPageState extends State<LoginPage> {
                             'ENTRAR',
                             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1),
                           ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Não tem uma conta? ',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const CadastroPage()),
+                          );
+                        },
+                        child: const Text(
+                          'Cadastre-se',
+                          style: TextStyle(
+                            color: AppColors.orangePrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

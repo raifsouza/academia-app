@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:power_shape_app/app/core/constants/api_constants.dart';
 import '../models/aluno_model.dart';
 import '../models/treino_model.dart';
 
 class TreinoRepository {
-  static const String baseUrl = 'http://localhost:3000/api';
+  static  String get baseUrl => ApiConstants.apiUrl;
 
   static Future<List<Aluno>> getAlunos() async {
     try {

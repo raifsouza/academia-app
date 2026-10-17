@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../core/constants/api_constants.dart';
 import '../../treino/models/aluno_model.dart';
 
 class AvaliacaoRepository {
   // Ajuste a URL base conforme o endereço da sua API Next.js/servidor
-  static const String baseUrl = 'http://localhost:3000/api';
+  static String get baseUrl => ApiConstants.apiUrl;
 
   // --- BUSCAR LISTA REAL DE ALUNOS DO BANCO ---
   static Future<List<Aluno>> getAlunos() async {

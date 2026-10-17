@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -8,6 +9,8 @@ class CustomTextField extends StatelessWidget {
   final bool isPassword;
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
@@ -17,6 +20,8 @@ class CustomTextField extends StatelessWidget {
     required this.controller,
     this.isPassword = false,
     this.validator,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
@@ -37,6 +42,8 @@ class CustomTextField extends StatelessWidget {
         TextFormField(
           controller: controller,
           obscureText: isPassword,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           style: const TextStyle(color: AppColors.textPrimary),
           validator: validator,
           decoration: InputDecoration(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../../core/constants/api_constants.dart';
 import '../../../core/constants/app_colors.dart';
 
 class GerenciarPermissoesPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class GerenciarPermissoesPage extends StatefulWidget {
 class _GerenciarPermissoesPageState extends State<GerenciarPermissoesPage> {
   List<dynamic> _usuarios = [];
   bool _isLoading = true;
-
+  static String get baseUrl => ApiConstants.usuariosUrl;
   @override
   void initState() {
     super.initState();
@@ -23,7 +24,7 @@ class _GerenciarPermissoesPageState extends State<GerenciarPermissoesPage> {
   Future<void> _carregarUsuarios() async {
     setState(() => _isLoading = true);
     try {
-      final response = await http.get(Uri.parse('http://localhost:3000/api/usuarios'));
+      final response = await http.get(Uri.parse(baseUrl));
       if (response.statusCode == 200) {
         setState(() {
           _usuarios = jsonDecode(response.body);
@@ -38,7 +39,7 @@ class _GerenciarPermissoesPageState extends State<GerenciarPermissoesPage> {
   Future<void> _alterarTipoUsuario(int userId, int novoTipo) async {
     try {
       final response = await http.put(
-        Uri.parse('http://localhost:3000/api/usuarios'),
+        Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'id': userId,

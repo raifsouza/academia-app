@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:power_shape_app/app/core/constants/api_constants.dart';
 import '../models/produto_model.dart';
 
 class ProdutoRepository {
-  static const String baseUrl = 'http://localhost:3000/api';
+  static String get baseUrl => ApiConstants.apiUrl;
 
   /// Busca a lista de produtos cadastrados na lanchonete/loja
   static Future<List<Produto>> getProdutos() async {

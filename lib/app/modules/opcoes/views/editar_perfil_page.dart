@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import '../../../core/auth/auth_service.dart';
+import '../../../core/constants/api_constants.dart';
 import '../../../core/constants/app_colors.dart';
 
 class EditarPerfilPage extends StatefulWidget {
@@ -17,7 +18,8 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
   final _nomeCtrl = TextEditingController();
   final _telefoneCtrl = TextEditingController();
   final _novaSenhaCtrl = TextEditingController();
-  
+  static String get baseUrl => ApiConstants.usuariosUrl;
+
   String? _fotoBase64;
   bool _isLoading = false;
 
@@ -120,7 +122,7 @@ class _EditarPerfilPageState extends State<EditarPerfilPage> {
 
     try {
       final response = await http.put(
-        Uri.parse('http://localhost:3000/api/usuarios'),
+        Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'id': userId,

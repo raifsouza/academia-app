@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../core/constants/api_constants.dart';
 import '../../treino/models/aluno_model.dart';
 import '../models/financeiro_model.dart';
 
@@ -14,7 +15,7 @@ class InfinitePayCheckoutResult {
 }
 
 class FinanceiroRepository {
-  static const String _baseUrl = 'http://localhost:3000/api';
+  static  String get _baseUrl => ApiConstants.apiUrl;
 
   /// Busca a lista de alunos cadastrados para o Admin
   static Future<List<Aluno>> getAlunos() async {

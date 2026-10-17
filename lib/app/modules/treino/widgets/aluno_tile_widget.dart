@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:power_shape_app/app/core/constants/api_constants.dart';
 import '../../../core/constants/app_colors.dart';
 import '../models/aluno_model.dart';
 
@@ -117,7 +118,7 @@ class AlunoTileWidget extends StatelessWidget {
                       // Altera o status manualmente no backend
                       try {
                         await http.put(
-                          Uri.parse('http://localhost:3000/api/alunos'), // Ajuste para seu IP se necessário
+                          Uri.parse(ApiConstants.alunosUrl), // Ajuste para seu IP se necessário
                           headers: {'Content-Type': 'application/json'},
                           body: jsonEncode({
                             'aluno_id': aluno.id,
